@@ -9,7 +9,7 @@ ORG 100h
     wc3 db 32,32,2,32,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,2,2,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,2,2,2,'$'
     wc4 db 32,32,2,32,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,'$'
     wc5 db 32,32,2,32,32,32,2,32,32,2,2,2,32,32,32,32,2,32,32,32,2,32,32,2,32,32,2,2,2,32,32,32,32,2,32,32,32,32,2,2,32,32,2,2,2,2,'$'
-    wc6 db 'Nhom 5$'
+    wc6 db 'Nhom 4$'
     wc7 db 'Giang vien: Dang Hoang Long$'
     wc8 db 'Bam nut bat ki de tiep tuc...$'
     
@@ -18,9 +18,20 @@ ORG 100h
     inforPlayer2 db 'Nguoi choi 2 : (O) $'
     
     ;tao bang
-    line1 db '|-----------|$'
-    line2 db '|   |   |   |$'
-    line3 db ' | $'
+    
+    line1 db  '|-----------|$'
+    line2 db  '|   |   |   |$'
+    line3 db  '| 1 | 2 | 3 |$'
+    line4 db  '|   |   |   |$'
+    line5 db  '|-----------|$'
+    line6 db  '|   |   |   |$'
+    line7 db  '| 4 | 5 | 6 |$'
+    line8 db  '|   |   |   |$'
+    line9 db  '|-----------|$'
+    line10 db '|   |   |   |$'
+    line11 db '| 7 | 8 | 9 |$'
+    line12 db '|   |   |   |$'
+    line13 db '|-----------|$'
     
     player db '1$'      ;ki tu nguoi choi thu 1,2
     currentMark db 'X$' ;ki tu o danh dau cua nguoi choi
@@ -35,18 +46,20 @@ ORG 100h
     drw db 'Tran dau hoa!'  
     
     ;nhap o muon chon
-    inp db 'nhap o muon chon.$'
-    wasTaken db 'O da duoc chon. Moi ban chon lai.                  $'
+    inp db 'nhap o muon chon.                                                                                                         $'
+    wasTaken db 'O da duoc chon. Moi ban chon lai.                                                                                    $'
     
     ;nhap khi choi lai
     try db 'ban co muon choi lai khong?(y/n): $'
-    wronginput db 'khong dung ki tu, moi ban nhap lai.                  $'
+    wronginput db 'khong dung ki tu, moi ban nhap lai.                                                                                $'
     
 .code
 start:
     call WELCOME
-    Game:
+    beginGame:
     call BOARD
+    call INIT
+    game:
     call INPUT
     call CHECK
     
@@ -75,8 +88,7 @@ start:
     jmp EXIT
     
     callTryAgain:
-    call INIT
-    jmp Game:
+    jmp beginGame:
     
     
 ;hien ra phan chao
@@ -127,122 +139,71 @@ BOARD proc
     lea dx,inforPlayer2
     int 21h
 
-    GOTOXY 30,2     ;dua con tro den cot 30 dong 5
+    GOTOXY 30,2     ;dua con tro den cot 30 dong 2
     mov ah,9
     lea dx,line1
     int 21h
     
-    GOTOXY 30,3     ;dua con tro den cot 30 dong 6
+    GOTOXY 30,3     ;dua con tro den cot 30 dong 3
     mov ah,9
     lea dx,line2
     int 21h
     
-    GOTOXY 29,4     ;dua con tro den cot 29 dong 7 cho den 29 vi line 3 la ' | ' nen phai lui 1 cot cho dau ' '
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[1]
-    int 21h
-    mov ah,9
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[2]
-    int 21h
-    mov ah,9
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[3]
-    int 21h
+    GOTOXY 30,4     ;dua con tro den cot 30 dong 4
     mov ah,9
     lea dx,line3
     int 21h
     
-    GOTOXY 30,5
+    GOTOXY 30,5     ;dua con tro den cot 30 dong 5
     mov ah,9
-    lea dx,line2
+    lea dx,line4
     int 21h
     
-    GOTOXY 30,6
+    GOTOXY 30,6     ;dua con tro den cot 30 dong 6
     mov ah,9
-    lea dx,line1
+    lea dx,line5
     int 21h
     
-    GOTOXY 30,7
+    GOTOXY 30,7     ;dua con tro den cot 30 dong 7
     mov ah,9
-    lea dx,line2
+    lea dx,line6
     int 21h
     
-    GOTOXY 29,8
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[4]
-    int 21h
+    GOTOXY 30,8     ;dua con tro den cot 30 dong 8
     mov ah,9
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[5]
-    int 21h
-    mov ah,9
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[6]
-    int 21h
-    mov ah,9
-    lea dx,line3
+    lea dx,line7
     int 21h
     
-    GOTOXY 30,9
+    GOTOXY 30,9     ;dua con tro den cot 30 dong 9
     mov ah,9
-    lea dx,line2
+    lea dx,line8
     int 21h
     
-    GOTOXY 30,10
+    GOTOXY 30,10     ;dua con tro den cot 30 dong 10
     mov ah,9
-    lea dx,line1
+    lea dx,line9
     int 21h
     
-    GOTOXY 30,11
+    GOTOXY 30,11     ;dua con tro den cot 30 dong 11
     mov ah,9
-    lea dx,line2
+    lea dx,line10
     int 21h
     
-    GOTOXY 29,12
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[7]
-    int 21h
+    GOTOXY 30,12     ;dua con tro den cot 30 dong 12
     mov ah,9
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[8]
-    int 21h
-    mov ah,9
-    lea dx,line3
-    int 21h
-    mov ah,2
-    mov dl,cell[9]
-    int 21h
-    mov ah,9
-    lea dx,line3
+    lea dx,line11
     int 21h
     
-    GOTOXY 30,13
+    GOTOXY 30,13     ;dua con tro den cot 30 dong 13
     mov ah,9
-    lea dx,line2
+    lea dx,line12
     int 21h
     
-    GOTOXY 30,14
+    GOTOXY 30,14     ;dua con tro den cot 30 dong 14
     mov ah,9
-    lea dx,line1
+    lea dx,line13
     int 21h
-
+    
     ret   
 BOARD endp
 ;khoi tao tat ca cac bien ve ban dau
@@ -258,6 +219,7 @@ INIT proc
     mov cell[9],'9'
     
     mov player,'1'
+    mov currentMark,'X'
     mov moves,0
     mov doneStatus,0
     mov drawStatus,0
@@ -520,6 +482,10 @@ INPUT proc
     cmp cell[1],'X'
     je taken
     mov cell[1],cl
+    GOTOXY 32,4
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell2:
@@ -528,6 +494,10 @@ INPUT proc
     cmp cell[2],'X'
     je taken
     mov cell[2],cl
+    GOTOXY 36,4
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell3:
@@ -536,6 +506,10 @@ INPUT proc
     cmp cell[3],'X'
     je taken
     mov cell[3],cl
+    GOTOXY 40,4
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell4:
@@ -544,6 +518,10 @@ INPUT proc
     cmp cell[4],'X'
     je taken
     mov cell[4],cl
+    GOTOXY 32,8
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell5:
@@ -552,6 +530,10 @@ INPUT proc
     cmp cell[5],'X'
     je taken
     mov cell[5],cl
+    GOTOXY 36,8
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell6:
@@ -560,6 +542,10 @@ INPUT proc
     cmp cell[6],'X'
     je taken
     mov cell[6],cl
+    GOTOXY 40,8
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell7:
@@ -568,6 +554,10 @@ INPUT proc
     cmp cell[7],'X'
     je taken
     mov cell[7],cl
+    GOTOXY 32,12
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell8:
@@ -576,6 +566,10 @@ INPUT proc
     cmp cell[8],'X'
     je taken
     mov cell[8],cl
+    GOTOXY 36,12
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     checkcell9:
@@ -584,6 +578,10 @@ INPUT proc
     cmp cell[9],'X'
     je taken
     mov cell[9],cl
+    GOTOXY 40,12
+    mov ah,9
+    lea dx,currentMark
+    int 21h
     ret
     
     ;o da duoc chon
