@@ -1,17 +1,27 @@
 include 'emu8086.inc'
-name "TIC TAC TOE"
-ORG 100h
+;khai bao thu vien de su dung ham gotoxy , print va clear_screen 
+
+;GOTOXY col, row - macro co 2 tham so cot va dong, thiet lap vi tri con tro
+;PRINT string - macro voi 1 tham so, in ra chuoi
+;CLEAR_SCREEN - xoa man hinh bang cach cuon man hinh va dat con tro len vi tri tren cung
+
+.model small
+.stack 100h
 .data
     ;chao mung den voi tic tac toe 
-    cell db '0123456789','$'
+    ; in ra dong chu tic tac toe 
     wc1 db 2,2,2,2,2,32,2,32,32,2,2,2,32,32,2,2,2,2,2,32,32,2,2,32,32,32,2,2,2,32,32,2,2,2,2,2,32,32,2,2,32,32,2,2,2,2,'$'
     wc2 db 32,32,2,32,32,32,32,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,'$'
     wc3 db 32,32,2,32,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,2,2,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,2,2,2,'$'
     wc4 db 32,32,2,32,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,'$'
     wc5 db 32,32,2,32,32,32,2,32,32,2,2,2,32,32,32,32,2,32,32,32,2,32,32,2,32,32,2,2,2,32,32,32,32,2,32,32,32,32,2,2,32,32,2,2,2,2,'$'
+    ;in ra thong tin nhom cung giang vien
     wc6 db 'Nhom 4$'
     wc7 db 'Giang vien: Dang Hoang Long$'
     wc8 db 'Bam nut bat ki de tiep tuc...$'
+    
+    ;trang thai cua cac o tren bang
+    cell db '0123456789','$'  
     
     ;ki tu nguoi choi
     inforPlayer1 db 'Nguoi choi 1 : (X) $'
@@ -42,56 +52,70 @@ ORG 100h
     
     ;hien ra ket qua tran dau
     win1 db 'Nguoi choi $'
-    win2 db 'chien thang $'
+    win2 db ' chien thang $'
     drw db 'Tran dau hoa!'  
     
     ;nhap o muon chon
-    inp db 'nhap o muon chon.                                                                                                         $'
-    wasTaken db 'O da duoc chon. Moi ban chon lai.                                                                                    $'
+    inp db 'nhap o muon chon.                         $'
+    wasTaken db 'O da duoc chon. Moi ban chon lai.        $'
     
     ;nhap khi choi lai
     try db 'ban co muon choi lai khong?(y/n): $'
-    wronginput db 'khong dung ki tu, moi ban nhap lai.                                                                                $'
+    wronginput db 'khong dung ki tu, moi ban nhap lai. $'
     
 .code
-start:
-    call WELCOME
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    call WELCOME              ;goi phan loi chao
     beginGame:
-    call BOARD
-    call INIT
+    call BOARD                ;tao bang 
+    call INIT                 ;khoi tao lai tat ca cac gia tri 
     game:
-    call INPUT
-    call CHECK
+    call INPUT                ;nhap o muon chon trong luot choi
+    call CHECK                ;kiem tra chien thang hoac hoa
     
-    cmp doneStatus,1
-    je callVictory
+    cmp doneStatus,1          ;kiem tra trang thai chien thang
+    je callVictory            ;nhay den cho goi ham in ra chien thang
     
-    cmp drawStatus,1
-    je callDraw
+    cmp drawStatus,1          ;kiem tra trang thai hoa
+    je callDraw               ;nhay den cho goi ham in ra hoa
     
     jmp Game
     
-    callVictory:
-    call VICTORY
-    call TRYAGAIN
-    cmp tryAgainStatus,1
+    callVictory:              ;
+    call VICTORY              ;goi ham in ra chien thang
+    call TRYAGAIN             ;goi ham hoi xem nguoi choi co muon choi lai
+    cmp tryAgainStatus,1      ;kiem tra nguoi choi co muon choi lai
+    je callTryAgain           ;nhay den goi ham choi lai
+    
+    jmp EXIT                  ;nguoi choi khong muon choi lai nen thoat chuong trinh
+    
+    callDraw:                 ;
+    call DRAW                 ;goi ham in ra kq hoa
+    call TRYAGAIN             ;kiem tra nguoi choi co muon choi lai
+    cmp tryAgainStatus,1      ;nhay den goi ham choi lai
     je callTryAgain
     
-    jmp EXIT
+    jmp EXIT                  ;nguoi choi khong muon choi lai nen thoat chuong trinh
     
-    callDraw:
-    call DRAW
-    call TRYAGAIN
-    cmp tryAgainStatus,1
-    je callTryAgain
+    callTryAgain:             ;choi lai
+    jmp beginGame:            ;tro lai luc ban dau 
     
-    jmp EXIT
+    EXIT:                     ;ket thuc chuong trinh
+    mov ah,4ch
+    int 21h
     
-    callTryAgain:
-    jmp beginGame:
-    
-    
+main endp    
+
 ;hien ra phan chao
+; OOOOO O   OOO  OOOOO  OO   OOO  OOOOO  OO  OOOO
+;   O      O       O   O  O O       O   O  O O
+;   O   O  O       O   OOOO O       O   O  O OOOO
+;   O   O  O       O   O  O O       O   O  O O
+;   O   O   OOO    O   O  O  OOO    O    OO  OOOO
+
 WELCOME proc
     call CLEAR_SCREEN
     GOTOXY 35,3
@@ -124,8 +148,22 @@ WELCOME proc
     mov ah,7
     int 21h
 ret    
-WELCOME endp
-;hien thi bang hien tai
+WELCOME endp    
+
+;hien thi bang hien tai 
+;|-----------|$'
+;|   |   |   |$'
+;| 1 | 2 | 3 |$'
+;|   |   |   |$'
+;|-----------|$'
+;|   |   |   |$'
+;| 4 | 5 | 6 |$'
+;|   |   |   |$'
+;|-----------|$'
+;|   |   |   |$'
+;| 7 | 8 | 9 |$'
+;|   |   |   |$'
+;|-----------|$'
 BOARD proc
     call CLEAR_SCREEN
     
@@ -204,8 +242,9 @@ BOARD proc
     lea dx,line13
     int 21h
     
-    ret   
+ret   
 BOARD endp
+
 ;khoi tao tat ca cac bien ve ban dau
 INIT proc
     mov cell[1],'1'
@@ -217,7 +256,7 @@ INIT proc
     mov cell[7],'7'
     mov cell[8],'8'
     mov cell[9],'9'
-    
+    ;nguoi choi 1 la nguoi choi di truoc
     mov player,'1'
     mov currentMark,'X'
     mov moves,0
@@ -227,16 +266,17 @@ INIT proc
 ret    
 INIT endp
 
+;ham xuat ket qua chien thang
 VICTORY proc
     GOTOXY 26,19    ;dua con tro den cot 26 dong 19
     mov ah,9
-    lea dx,win1
+    lea dx,win1     ;in ra "nguoi choi"
     int 21h
     
-    lea dx,player
+    lea dx,player   ;in ra nguoi choi chien thang
     int 21h
     
-    lea dx,win2
+    lea dx,win2     ;in ra "chien thang"
     int 21h
     
     GOTOXY 22,20    ;dua con tro den cot 22 dong 20
@@ -249,15 +289,16 @@ VICTORY proc
 ret       
 VICTORY endp
 
+; ham xuat ket qua hoa
 DRAW proc
     GOTOXY 26,19    ;dua con tro den cot 26 dong 19
     mov ah,9
-    lea dx,drw
+    lea dx,drw      ;in ra ket qua hoa
     int 21h
     
     GOTOXY 22,20    ;dua con tro den cot 22 dong 20
     mov ah,9
-    lea dx,wc8
+    lea dx,wc8      ;in ra dong chu bam nut bat ki de tiep tuc
     int 21h
     
     mov ah,7        ;bam nut bat ki
@@ -266,8 +307,9 @@ DRAW proc
 ret
 DRAW endp
 
+; ham kiem tra xem co cot hoac hang nao thang nhau dan den chien thang hoac hoa khi khong the di them nua
 CHECK proc
-   check1: ;check 1 2 3
+   check1:              ;kiem tra hang 1 2 3
    mov al,cell[1]
    cmp al,cell[2]
    jne check2   
@@ -277,7 +319,7 @@ CHECK proc
    mov doneStatus,1
    ret
      
-   check2:
+   check2:              ;kiem tra hang 4 5 6
    mov al,cell[4]   
    cmp al,cell[5]
    jne check3   
@@ -287,7 +329,7 @@ CHECK proc
    mov doneStatus,1
    ret
      
-   check3:
+   check3:              ;kiem tra hang 7 8 9
    mov al,cell[7]  
    cmp al,cell[8]
    jne check4  
@@ -297,7 +339,7 @@ CHECK proc
    mov doneStatus,1
    ret 
    
-   check4:
+   check4:              ;kiem tra cot 1 4 7
    mov al,cell[1]  
    cmp al,cell[4]
    jne check5   
@@ -307,7 +349,7 @@ CHECK proc
    mov doneStatus,1
    ret
    
-   check5:
+   check5:              ;kiem tra cot 2 5 8
    mov al,cell[2]
    cmp al,cell[5]
    jne check6  
@@ -317,7 +359,7 @@ CHECK proc
    mov doneStatus,1
    ret
    
-   check6:
+   check6:              ;kiem tra cot 3 6 9
    mov al,cell[3]
    cmp al,cell[6]
    jne check7
@@ -327,7 +369,7 @@ CHECK proc
    mov doneStatus,1
    ret
    
-   check7:
+   check7:              ;kiem tra duong cheo chinh 1 5 9
    mov al,cell[1]
    cmp al,cell[5]
    jne check8   
@@ -337,7 +379,7 @@ CHECK proc
    mov doneStatus,1
    ret 
    
-   check8:
+   check8:              ;kiem tra duong cheo phu 3 5 7
    mov al,cell[3]
    cmp al,cell[5]
    jne checkdraw 
@@ -347,40 +389,42 @@ CHECK proc
    mov doneStatus,1
    ret 
    
-   checkdraw:
-   mov al,moves
-   cmp al,9
-   jl callPlayerChange
+   checkdraw:           ;kiem tra ket qua hoa
+   mov al,moves         
+   cmp al,9             ;so sanh so luong buoc di voi 9
+   jl callPlayerChange  ;so luong buoc di nho hon 9 nen doi nguoi choi
    
-   mov drawStatus,1
+   mov drawStatus,1     ;trang thai hoa la true
    ret
    
    callPlayerChange:
-   call PLAYERCHANGE
+   call PLAYERCHANGE    ;goi ham doi luot choi
    ret
-   
+ret   
 CHECK endp
 
+; ham thay doi luot cua nguoi choi
 PLAYERCHANGE proc
-    cmp player,'1'
+    cmp player,'1'      ;kiem tra nguoi choi la 1 de doi sang 2
     je changeToPlayer2
     jmp changeToPlayer1
     
-    changeToPlayer1:
+    changeToPlayer1:    ;doi sang nguoi choi 1
     mov player,'1'
     mov currentMark,'X'
     ret
     
-    changeToPlayer2:
+    changeToPlayer2:    ;doi sang nguoi choi 2
     mov player,'2'
     mov currentMark,'O'
-    ret    
+ret    
 PLAYERCHANGE endp
-;choi lai
+
+; kiem tra nguoi choi co muon choi lai khong
 TRYAGAIN proc   
     call CLEAR_SCREEN
-    ag:
-    GOTOXY 24,10
+    ag:                 ; dung de khi nguoi choi nhap sai thi se quay lai
+    GOTOXY 24,10        ;in ra ban co muon choi lai
     mov ah,9
     lea dx,try
     int 21h
@@ -388,62 +432,64 @@ TRYAGAIN proc
     mov ah,1
     int 21h
     
-    cmp al,'y'
-    je callYES  
+    cmp al,'y'          ;so sanh y la yes
+    je callYES          ;nhay den callYes
     cmp al,'Y'
     je callYES
     
-    cmp al,'n'
-    je callNO 
+    cmp al,'n'          ;so sanh n la no
+    je callNO           ;nhay den callno
     cmp al,'N'
     je callNO
-    
-    callYES:
-    mov tryAgainStatus,1
-    ret
-    
-    callNO:
-    ret
-    
-    callWRONGINPUT:
+                        
+    callWRONGINPUT:     ;nhap sai ki tu y hoac n
     GOTOXY 24,9
     mov ah,9
-    lea dx,wronginput
+    lea dx,wronginput   ;in ra viec nguoi choi nhap sai 
     int 21h
-    jmp ag      
+    jmp ag              ;nhay den again 
     
+    callYES:
+    mov tryAgainStatus,1; thay doi trang thai choi lai la true
+    ret
+    
+    callNO:             ; nguoi choi khong muon choi lai
+    ret
+ret    
 TRYAGAIN endp
-;nhap vao
+
+;ham nhap o nguoi choi muon dien vao
 INPUT proc
-    startInput:
-    GOTOXY 20,16
+    startInput:         ;
+    GOTOXY 20,16        ;di chuyen con tro den vi tri de in ra thong bao moi nguoi choi lua chon o
     
-    cmp player,'1'
-    je take1:
-    
+    cmp player,'1'      ;so sanh nguoi choi thu 1
+    je take1:           ;nhay den phan xu ly nguoi choi thu 1 neu dung
+                        
+    ;xu ly nguoi choi thu 2                    
     mov ah,9
-    lea dx,inforPlayer2
+    lea dx,inforPlayer2 ; in ra nguoi choi thu 2
     int 21h
     jmp takeinput
     
     take1:
     mov ah,9
-    lea dx,inforPlayer1
+    lea dx,inforPlayer1 ;in ra nguoi choi thu 1
     int 21h
     
     takeinput:
     mov ah,9
-    lea dx,inp
+    lea dx,inp          ;in ra nguoi choi chon o muon chon
     int 21h
     
-    mov ah,1  ;nhap 1 ki tu
+    mov ah,1            ;nhap 1 ki tu
     int 21h
     
-    inc moves ;tang so lan choi len 1
+    inc moves           ;tang so lan choi len 1
     mov bl,al
     sub bl,'0'
     
-    mov cl,currentMark
+    mov cl,currentMark  ;chuyen ki tu nguoi choi thu 1 hoac 2 vao thanh ghi cl
     ;nhap dung ki tu
     cmp bl,1
     je checkCell1:
@@ -465,15 +511,15 @@ INPUT proc
     je checkCell9:
     
     ;nhap sai ki tu
-    dec moves
+    dec moves           ;giam so lan choi xuong 1
     GOTOXY 20,16
     mov ah,9
-    lea dx,wronginput
+    lea dx,wronginput   ;in ra nhap sai ki tu
     int 21h
     
     mov ah,7
     int 21h
-    jmp startInput:
+    jmp startInput:     ;nhap lai 
     
     ;kiem tra o duoc chon
     checkcell1:
@@ -482,9 +528,9 @@ INPUT proc
     cmp cell[1],'X'
     je taken
     mov cell[1],cl
-    GOTOXY 32,4
+    GOTOXY 32,4         ;chuyen con tro vao vi tri o thu 1
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 1
     int 21h
     ret
     
@@ -494,9 +540,9 @@ INPUT proc
     cmp cell[2],'X'
     je taken
     mov cell[2],cl
-    GOTOXY 36,4
+    GOTOXY 36,4         ;chuyen con tro vao vi tri o thu 2
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao so 2
     int 21h
     ret
     
@@ -506,9 +552,9 @@ INPUT proc
     cmp cell[3],'X'
     je taken
     mov cell[3],cl
-    GOTOXY 40,4
+    GOTOXY 40,4         ;chuyen con tro vao vi tri o thu 3
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 3
     int 21h
     ret
     
@@ -518,9 +564,9 @@ INPUT proc
     cmp cell[4],'X'
     je taken
     mov cell[4],cl
-    GOTOXY 32,8
-    mov ah,9
-    lea dx,currentMark
+    GOTOXY 32,8         ;chuyen con tro vao vi tri o thu 4
+    mov ah,9            
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 4
     int 21h
     ret
     
@@ -530,9 +576,9 @@ INPUT proc
     cmp cell[5],'X'
     je taken
     mov cell[5],cl
-    GOTOXY 36,8
+    GOTOXY 36,8         ;chuyen ki tu con tro vao o thu 5
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;chuyen ki tu nguoi choi vao o 5
     int 21h
     ret
     
@@ -541,10 +587,10 @@ INPUT proc
     je taken
     cmp cell[6],'X'
     je taken
-    mov cell[6],cl
-    GOTOXY 40,8
+    mov cell[6],cl      
+    GOTOXY 40,8         ;chuyen ki tu con tro vao o thu 6
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 6
     int 21h
     ret
     
@@ -554,9 +600,9 @@ INPUT proc
     cmp cell[7],'X'
     je taken
     mov cell[7],cl
-    GOTOXY 32,12
+    GOTOXY 32,12        ;chuyen ki tu con tro vao o thu 7  
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 7  
     int 21h
     ret
     
@@ -566,9 +612,9 @@ INPUT proc
     cmp cell[8],'X'
     je taken
     mov cell[8],cl
-    GOTOXY 36,12
+    GOTOXY 36,12        ;chuyen ki tu con tro vao o thu 8
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 8
     int 21h
     ret
     
@@ -576,11 +622,11 @@ INPUT proc
     cmp cell[9],'O'
     je taken
     cmp cell[9],'X'
-    je taken
+    je taken            
     mov cell[9],cl
-    GOTOXY 40,12
+    GOTOXY 40,12        ;chuyen ki tu con tro vao o thu 9
     mov ah,9
-    lea dx,currentMark
+    lea dx,currentMark  ;ghi de ki tu nguoi choi vao o 9
     int 21h
     ret
     
@@ -589,18 +635,14 @@ INPUT proc
     dec moves
     GOTOXY 20,16
     mov ah,9
-    lea dx,wasTaken
+    lea dx,wasTaken     ;in ra o da duoc chon
     int 21h
     
     mov ah,7
     int 21h
-    jmp startInput:
-    
+    jmp startInput:     ;nhap lai
+ret    
 INPUT endp
 
-
-EXIT: ;ket thuc chuong trinh
-mov ah,4ch
-int 21h
 DEFINE_CLEAR_SCREEN
-END start
+
