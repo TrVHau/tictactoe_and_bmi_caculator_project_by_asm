@@ -1,15 +1,15 @@
 include 'emu8086.inc'
-;khai bao thu vien de su dung ham gotoxy , print va clear_screen 
+;khai bao thu vien de su dung marco gotoxy va clear_screen 
 
 ;GOTOXY col, row - macro co 2 tham so cot va dong, thiet lap vi tri con tro
-;PRINT string - macro voi 1 tham so, in ra chuoi
 ;CLEAR_SCREEN - xoa man hinh bang cach cuon man hinh va dat con tro len vi tri tren cung
 
 .model small
 .stack 100h
 .data
     ;chao mung den voi tic tac toe 
-    ; in ra dong chu tic tac toe 
+    ; in ra dong chu tic tac toe
+    wc0 db 'WELCOME TO$' 
     wc1 db 2,2,2,2,2,32,2,32,32,2,2,2,32,32,2,2,2,2,2,32,32,2,2,32,32,32,2,2,2,32,32,2,2,2,2,2,32,32,2,2,32,32,2,2,2,2,'$'
     wc2 db 32,32,2,32,32,32,32,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,'$'
     wc3 db 32,32,2,32,32,32,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,2,2,2,32,2,32,32,32,32,32,32,32,2,32,32,32,2,32,32,2,32,2,2,2,2,'$'
@@ -117,11 +117,12 @@ main endp
 ;   O   O   OOO    O   O  O  OOO    O    OO  OOOO
 
 WELCOME proc
-    call CLEAR_SCREEN
-    GOTOXY 35,3
-    PRINT 'WELCOME TO' 
-    GOTOXY 15,5
+    call CLEAR_SCREEN 
     mov ah,9
+    GOTOXY 32,3
+    lea dx,wc0
+    int 21h 
+    GOTOXY 15,5
     lea dx, wc1
     int 21h
     GOTOXY 15,6
@@ -646,3 +647,4 @@ INPUT endp
 
 DEFINE_CLEAR_SCREEN
 
+end main
