@@ -53,7 +53,7 @@ include 'emu8086.inc'
     ;hien ra ket qua tran dau
     win1 db 'Nguoi choi $'
     win2 db ' chien thang $'
-    drw db 'Tran dau hoa!'  
+    drw db 'Tran dau hoa!                  $'  
     
     ;nhap o muon chon
     inp db 'nhap o muon chon.                         $'
@@ -146,6 +146,7 @@ WELCOME proc
     GOTOXY 23,14
     lea dx,wc8
     int 21h
+    
     mov ah,7
     int 21h
 ret    
@@ -267,46 +268,22 @@ INIT proc
 ret    
 INIT endp
 
-;ham xuat ket qua chien thang
-VICTORY proc
-    GOTOXY 26,19    ;dua con tro den cot 26 dong 19
-    mov ah,9
-    lea dx,win1     ;in ra "nguoi choi"
-    int 21h
+; ham thay doi luot cua nguoi choi
+PLAYERCHANGE proc
+    cmp player,'1'      ;kiem tra nguoi choi la 1 de doi sang 2
+    je changeToPlayer2
+    jmp changeToPlayer1
     
-    lea dx,player   ;in ra nguoi choi chien thang
-    int 21h
+    changeToPlayer1:    ;doi sang nguoi choi 1
+    mov player,'1'
+    mov currentMark,'X'
+    ret
     
-    lea dx,win2     ;in ra "chien thang"
-    int 21h
-    
-    GOTOXY 22,20    ;dua con tro den cot 22 dong 20
-    mov ah,9
-    lea dx,wc8
-    int 21h
-    
-    mov ah,7        ;bam nut bat ki
-    int 21h
-ret       
-VICTORY endp
-
-; ham xuat ket qua hoa
-DRAW proc
-    GOTOXY 26,19    ;dua con tro den cot 26 dong 19
-    mov ah,9
-    lea dx,drw      ;in ra ket qua hoa
-    int 21h
-    
-    GOTOXY 22,20    ;dua con tro den cot 22 dong 20
-    mov ah,9
-    lea dx,wc8      ;in ra dong chu bam nut bat ki de tiep tuc
-    int 21h
-    
-    mov ah,7        ;bam nut bat ki
-    int 21h
-    
-ret
-DRAW endp
+    changeToPlayer2:    ;doi sang nguoi choi 2
+    mov player,'2'
+    mov currentMark,'O'
+ret    
+PLAYERCHANGE endp
 
 ; ham kiem tra xem co cot hoac hang nao thang nhau dan den chien thang hoac hoa khi khong the di them nua
 CHECK proc
@@ -404,22 +381,47 @@ CHECK proc
 ret   
 CHECK endp
 
-; ham thay doi luot cua nguoi choi
-PLAYERCHANGE proc
-    cmp player,'1'      ;kiem tra nguoi choi la 1 de doi sang 2
-    je changeToPlayer2
-    jmp changeToPlayer1
+;ham xuat ket qua chien thang
+VICTORY proc
+    GOTOXY 26,19    ;dua con tro den cot 26 dong 19
+    mov ah,9
+    lea dx,win1     ;in ra "nguoi choi"
+    int 21h
     
-    changeToPlayer1:    ;doi sang nguoi choi 1
-    mov player,'1'
-    mov currentMark,'X'
-    ret
+    lea dx,player   ;in ra nguoi choi chien thang
+    int 21h
     
-    changeToPlayer2:    ;doi sang nguoi choi 2
-    mov player,'2'
-    mov currentMark,'O'
-ret    
-PLAYERCHANGE endp
+    lea dx,win2     ;in ra "chien thang"
+    int 21h
+    
+    GOTOXY 22,20    ;dua con tro den cot 22 dong 20
+    mov ah,9
+    lea dx,wc8
+    int 21h
+    
+    mov ah,7        ;bam nut bat ki
+    int 21h
+ret       
+VICTORY endp
+
+; ham xuat ket qua hoa
+DRAW proc
+    GOTOXY 26,19    ;dua con tro den cot 26 dong 19
+    mov ah,9
+    lea dx,drw      ;in ra ket qua hoa
+    int 21h
+    
+    GOTOXY 22,20    ;dua con tro den cot 22 dong 20
+    mov ah,9
+    lea dx,wc8      ;in ra dong chu bam nut bat ki de tiep tuc
+    int 21h
+    
+    mov ah,7        ;bam nut bat ki
+    int 21h
+    
+ret
+DRAW endp 
+
 
 ; kiem tra nguoi choi co muon choi lai khong
 TRYAGAIN proc   
