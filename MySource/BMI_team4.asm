@@ -142,13 +142,20 @@ Start:
     call MENU          ;In menu
     
     cmp al, '1'  ;Chay chuong trinh tinhh bmi
-    je CACULATE
+    jne skip1
+    call CACULATE
     
+    skip1:
     cmp al, '2'  ;Chay chuong trinh in BMI TABLE
-    je BMI_TABLE 
+    jne skip2 
+    call BMI_TABLE
     
+    skip2:
     cmp al, '3'  ;Chay chuong trinh tinh can nang ly tuong
-    je IDEAL_WEIGHT
+    jne skip3
+    call IDEAL_WEIGHT
+    
+    skip3:
     
     call CLEAR_SCREEN   ;Xoa man hinh
     

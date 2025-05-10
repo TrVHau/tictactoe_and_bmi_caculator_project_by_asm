@@ -445,7 +445,7 @@ TRYAGAIN proc
     cmp al,'N'
     je callNO
                         
-    callWRONGINPUT:     ;nhap sai ki tu y hoac n
+    ;nhap sai ki tu y hoac n
     GOTOXY 24,9
     mov ah,9
     lea dx,wronginput   ;in ra viec nguoi choi nhap sai 
@@ -467,7 +467,7 @@ INPUT proc
     GOTOXY 20,16        ;di chuyen con tro den vi tri de in ra thong bao moi nguoi choi lua chon o
     
     cmp player,'1'      ;so sanh nguoi choi thu 1
-    je take1:           ;nhay den phan xu ly nguoi choi thu 1 neu dung
+    je take1           ;nhay den phan xu ly nguoi choi thu 1 neu dung
                         
     ;xu ly nguoi choi thu 2                    
     mov ah,9
@@ -495,23 +495,23 @@ INPUT proc
     mov cl,currentMark  ;chuyen ki tu nguoi choi thu 1 hoac 2 vao thanh ghi cl
     ;nhap dung ki tu
     cmp bl,1
-    je checkCell1:
+    je checkCell1
     cmp bl,2
-    je checkCell2:
+    je checkCell2
     cmp bl,3
-    je checkCell3:
+    je checkCell3
     cmp bl,4
-    je checkCell4:
+    je checkCell4
     cmp bl,5
-    je checkCell5:
+    je checkCell5
     cmp bl,6
-    je checkCell6:
+    je checkCell6
     cmp bl,7
-    je checkCell7:
+    je checkCell7
     cmp bl,8
-    je checkCell8:
+    je checkCell8
     cmp bl,9
-    je checkCell9:
+    je checkCell9
     
     ;nhap sai ki tu
     dec moves           ;giam so lan choi xuong 1
@@ -522,7 +522,7 @@ INPUT proc
     
     mov ah,7
     int 21h
-    jmp startInput:     ;nhap lai 
+    jmp startInput     ;nhap lai 
     
     ;kiem tra o duoc chon
     checkcell1:
@@ -643,7 +643,7 @@ INPUT proc
     
     mov ah,7
     int 21h
-    jmp startInput:     ;nhap lai
+    jmp startInput     ;nhap lai
 ret    
 INPUT endp
 
