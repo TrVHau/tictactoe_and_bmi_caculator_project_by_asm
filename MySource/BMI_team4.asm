@@ -1,77 +1,186 @@
-.model small           ; Su dung mo hinh bo nho nho
+include 'emu8086.inc'
+.model small
+           ; Su dung mo hinh bo nho nho
 .stack 100h            ; Khoi tao ngan xep voi kich thuoc 256 byte
 
-.data                  ; Bat dau doan du lieu
+.data                  ; Bat dau doan du lieu 
+   
+    line1 db '|', 77 dup('-'), '|', '$'
+    line2 db '|', 77 dup(' '), '|', '$'
+   
+   
+   x db ?;Toa do x cua vi tri con tro
+   y db ?;Toa do y cua vi tri con tro
    1e1 dw 10           ; Hang so 10
    1e4 dw 10000        ; Hang so 10000
    chuso db ?          ; Bien tam luu tung chu so vua nhap
    weight dw ?         ; Can nang nguoi dung nhap (don vi: kg)
    height dw ?         ; Chieu cao nguoi dung nhap (don vi: cm)
-   xinchao dw '=== CHUONG TRINH TINH BMI ===$'         ; Chuoi loi chao
-   xuong_dong dw 10, 13, '$'                           ; Ky tu xuong dong
-   yeu_cau_nhap_can_nang dw 'Xin hay nhap can nang cua ban(kg): $' ; Cau nhap can nang
-   yeu_cau_nhap_chieu_cao dw 'Xin hay nhap chieu cao cua ban(cm): $' ; Cau nhap chieu cao
-   ketqua dw 'Day la ket qua BMI cua ban: $'           ; Chuoi hien thi ket qua BMI
-   tieptuc dw 'Ban co muon tiep tuc chuong trinh ?', 10, 13, 'Neu ban muon tiep tuc hay bam so 1, neu khong hay bam so 0.', 10, 13, 'Moi ban nhap: $' ; Cau hoi tiep tuc
-   Error dw 'Ban da nhap sai!!!!$'                     ; Thong bao loi khi nhap sai
+   tittle db '=== BMI CACULATOR FOR HUMAN ===$'         ; Chuoi loi chao
+   someword db 'MADE BY G4$'
+   proceed db 'ENTER TO START...$'
+   return db 'ENTER TO RETURN...$'
+   xuong_dong db 10, 13, '$'; Ky tu xuong dong
+   
    Hi dw 0                                              ; Phan cao cua tich 32 bit
    Lo dw 0                                              ; Phan thap cua tich 32 bit
    cham_phay db '.$'                                   ; Ky tu dau cham
    ans_nguyen dw 0                                      ; Phan nguyen cua BMI
    ans_du dw 0                                          ; Phan du sau khi chia
-   ans_champhay dw 0                                    ; Phan thap phan cua BMI
-
-   ; Muc danh gia chi so BMI theo tung nguong
+   ans_champhay dw 0                                    ; Phan thap phan cua BMI 
+   
+   loading dw 'LOADING....$'
+   blankstr dw '             $' ;Chuoi trang dung de xoa chuoi
+   
+   thank db 'THANK YOU SO MUCH$'
+   ;MENU
+   
+   option1 dw '1. Caculate your bmi$'
+   option2 dw '2. Show BMI (Body Mass Index) classification table$'
+   option3 dw '3. Suggest ideal weight$'
+   option4 dw '4. EXIT $'
+   
+   choice db 'Select an option:...$'
+   
+   ;CACULATE
+   
+   yeu_cau_nhap_can_nang dw 'Please enter your weight(kg): $' ; Cau nhap can nang
+   yeu_cau_nhap_chieu_cao dw 'Please enter your height(cm): $' ; Cau nhap chieu cao
+   ketqua dw 'This is your BMI : $'           ; Chuoi hien thi ket qua BMI
+   
+   Error dw 'It seem that you made some mistakes ?$' ; Thong bao loi khi nhap sai
+   estimate dw 'Your state is $'                     
+   
+   ; BMI (Body Mass Index) classification table
+   ;Cac muc BMI
+   tittle1 dw 'BMI (kg/m)$'
+   tittle2 dw 'Category$'
+   
+   
    muc1 dw 160
-   tb1 dw 'Co the ban dang trong tinh trang Gay do 3 (rat nang)$'
+   tb1.1 dw 'Below 16.0$'
+   tb1 dw 'Severely underweight$'
+   
    muc2 dw 170
-   tb2 dw 'Co the ban dang trong tinh trang Gay do 2 <vua>$'
+   tb2.1 dw '16.0 - 16.9$'
+   tb2 dw 'Moderately underweight$'
+   
    muc3 dw 185
-   tb3 dw 'Co the ban dang trong tinh trang Gay do 1 <nhe>$'
+   tb3.1 dw '17.0 - 18.4$'
+   tb3 dw 'Mildly underweight$'
+   
+   advice1 dw 'You should Eat more nutrient-dense meals and include strength training to build muscle.$' ;Advice for BMI < 18.5
+   
    muc4 dw 250
-   tb4 dw 'Co the ban hoan toan Binh thuong <khoe manh>$'
+   tb4.1 dw '18.5 - 24.9$'
+   tb4 dw 'Normal weight$'
+   
+   advice2 dw 'Just Maintain a balanced diet and stay active to keep your weight stable.$' ;Advice for BMI < 25
+   
    muc5 dw 300
-   tb5 dw 'Co the ban co dau hieu Thua can <tien beo phi> $'
+   tb5.1 dw '25.0 - 29.9$'
+   tb5 dw 'Overweight$'
+   
+   advice3 dw 'You should Focus on portion control and increase daily physical activity.$' ;Advice for BMI < 30
+   
    muc6 dw 350
-   tb6 dw 'Co the ban dang Beo phi do 1$'
+   tb6.1 dw '30.0 - 34.9$'
+   tb6 dw 'Obesity Class I (Moderate)$'
+   
    muc7 dw 400
-   tb7 dw 'Co the ban dang Beo phi do 2$'
-   tb8 dw 'Co the ban dang Beo phi do 3 <rat nang>$'
+   tb7.1 dw '35.0 - 39.9$'
+   tb7 dw 'Obesity Class II (Severe)$'
+   
+   tb8.1 dw  '40.0 and above$'
+   tb8 dw 'Obesity Class III (Very severe / morbid)$'
+   
+   advice4x1 dw 'You need to consult a healthcare provider for a personalized plan$' ;Advice for BMI >= 30
+   advice4x2 dw 'And prioritize gradual lifestyle changes.$'
+   ;Ideal Weight
+   
+   IBMI dw 22
+   tb_Ideal_weight dw 'Your ideal weight is: $'
 
 .code                   ; Bat dau doan ma chuong trinh
+
+;Dat vi tri con tro o vi tri x, y
+goto macro x, y
+    mov ah, 2
+    mov bh , 0
+    mov dl, x
+    mov dh, y        
+    int 10h
+        
+endm
+;In 1 chuoi
+printf macro str
+    mov ah, 9
+    lea dx, str
+    int 21h
+    
+endm
+; Lay vi tri con tro, gan x = dl, y = dh
+Take_pointer macro
+    mov ah, 3
+    mov bh, 0
+    int 10h
+    
+    
+    
+endm
+
 main proc
     mov ax, @data
     mov ds, ax          ; Khoi tao thanh ghi DS de truy xuat bien
-
+    call Intro
 Start:
-    ; In ra loi chao
-    lea dx, xinchao
-    mov ah, 9
+  
+    call CLEAR_SCREEN  ;Xoa man hinh
+    
+    call DRAW_BORDER   ;In vien
+    
+    call MENU          ;In menu
+    
+    cmp al, '1'  ;Chay chuong trinh tinhh bmi
+    je CACULATE
+    
+    cmp al, '2'  ;Chay chuong trinh in BMI TABLE
+    je BMI_TABLE 
+    
+    cmp al, '3'  ;Chay chuong trinh tinh can nang ly tuong
+    je IDEAL_WEIGHT
+    
+    call CLEAR_SCREEN   ;Xoa man hinh
+    
+    mov x, 30
+    mov y, 12
+    goto x, y
+    printf thank
+
+    ; Ket thuc chuong trinh
+    mov ah, 4Ch
     int 21h
 
-    ; Xuong dong
-    lea dx, xuong_dong
-    mov ah, 9
-    int 21h
+main endp
 
-Nhap_weight:
-    ; Hien thi thong bao nhap can nang
-    lea dx, yeu_cau_nhap_can_nang
-    mov ah, 9
-    int 21h
-
+;Chuong trinh tinh toan bmi
+CACULATE proc
+    call CLEAR_SCREEN
+    call DRAW_BORDER
+    
+Input_Weight: ;Nhap can nang
+    
+    ; Hien thi thong bao nhap can nang  
+    goto 2,2
+    printf yeu_cau_nhap_can_nang
+    
     ; Goi ham nhap so nguyen
     call read_num
     mov weight, ax      ; Luu gia tri nhap vao bien weight
-
-    ; Xuong dong
-    lea dx, xuong_dong
-    mov ah, 9
-    int 21h
-
+    
     ; Neu weight = 0 thi nhap lai
     cmp weight, 0
-    je Nhap_weight
+    je Input_Weight
 
     ; Tinh tu so BMI = can nang * 10000
     mov ax, weight
@@ -79,22 +188,17 @@ Nhap_weight:
     mov Hi, dx
     mov Lo, ax
 
-Nhap_height:
-    ; Hien thi thong bao nhap chieu cao
-    lea dx, yeu_cau_nhap_chieu_cao
-    mov ah, 9
-    int 21h
+Input_Height: ;Nhap chieu cao
+    
+    ; Hien thi thong bao nhap chieu cao 
+    goto 2,4
+    printf yeu_cau_nhap_chieu_cao
 
     call read_num
     mov height, ax      ; Luu vao bien height
-
-    ; Xuong dong
-    lea dx, xuong_dong
-    mov ah, 9
-    int 21h
-
+    
     cmp height, 0
-    je Nhap_height
+    je Input_Height
 
     ; Tinh height^2
     mov ax, height
@@ -110,12 +214,11 @@ Nhap_height:
 
     mov ans_nguyen, ax  ; phan nguyen cua BMI
     mov ans_du, dx      ; phan du
-
+    
     ; In thong bao ket qua
-    lea dx, ketqua
-    mov ah, 9
-    int 21h
-
+    goto 2,6
+    printf ketqua
+    
     ; In phan nguyen cua BMI
     mov ax, ans_nguyen
     call print_num
@@ -133,50 +236,240 @@ Nhap_height:
     mov ans_champhay, ax
     call print_num
 
-    ; Xuong dong
-    lea dx, xuong_dong
-    mov ah, 9
-    int 21h
-
     ; Goi ham phan loai BMI
+    goto 2,10
     call phan_loai
 
-    ; Xuong dong
-    lea dx, xuong_dong
-    mov ah, 9
-    int 21h
-
-    ; Hoi nguoi dung co muon tiep tuc khong
-    lea dx, tieptuc
-    mov ah, 9
-    int 21h
-
+    ;in ra return
+    goto 2,15
+    printf return    
     ; Nhan phim lua chon
     mov ah, 1
     int 21h
 
-    ; Xuong dong
-    lea dx, xuong_dong
-    mov ah, 9
+   
+        
+    Take_pointer
+    
+    
+    jmp Start           ; Quay lai menu
+
+   
+    ret
+    
+CACULATE endp
+
+;Chuong trinh hien bang bmi
+BMI_TABLE proc
+    call CLEAR_SCREEN     ;Xoa man hinh
+    call DRAW_BORDER      ;In vien
+    
+    ;Set vi tri con tro va in thong tin 
+    goto 0,3
+    printf line1
+    
+    ;In title
+    goto 2,2   
+    printf tittle1
+        
+    goto 40,2    
+    printf tittle2
+    
+    ;In muc 1
+    goto 2,4    
+    printf tb1.1
+    goto 40,4   
+    printf tb1
+    
+    ;In muc 2
+    goto 2,6    
+    printf tb2.1
+    goto 40,6    
+    printf tb2
+    
+    ;In muc 3
+    goto 2,8   
+    printf tb3.1
+    goto 40,8    
+    printf tb3
+    
+    ;In muc 4
+    goto 2,10    
+    printf tb4.1
+    goto 40,10   
+    printf tb4
+    
+    ;In muc 5
+    goto 2,12    
+    printf tb5.1
+    goto 40,12    
+    printf tb5
+    
+    ;In muc 6
+    goto 2,14   
+    printf tb6.1
+    goto 40,14    
+    printf tb6
+    
+    ;In muc 7
+    goto 2,16   
+    printf tb7.1
+    goto 40,16    
+    printf tb7
+    
+    ;In muc 8
+    goto 2,18    
+    printf tb8.1
+    goto 40,18    
+    printf tb8
+    
+    ;Quay tro lai menu
+    goto 2,22
+    printf return
+    
+    mov ah, 1  ;Enter to return
     int 21h
-
-    cmp al, '0'
-    jne Start           ; Neu khac '0' thi quay lai dau
-
-    ; Ket thuc chuong trinh
+    
+    jmp Start
+    
     mov ah, 4Ch
     int 21h
+    
+BMI_TABLE endp
 
-main endp
+;Chuong trinh tinh can nang ly tuong
+IDEAL_WEIGHT proc
+    call CLEAR_SCREEN  ;Xoa man hinh
+    call DRAW_BORDER   ;In vien
+    
+    mov x, 1       ;Dua con tro ve vi tri (1,1)
+    mov y, 1
+    goto x, y
+    ; Hien thi thong bao nhap chieu cao
+    printf yeu_cau_nhap_chieu_cao
 
+    call read_num
+    mov height, ax      ; Luu vao bien height
+
+    ; Xuong dongx2
+    printf xuong_dong
+    printf xuong_dong
+    printf tb_Ideal_weight
+           
+    mov ax, height
+    mul height
+    ;Ideal BMI = 22
+    mul IBMI
+    div 1e4  
+  
+    call print_num
+    
+    ; Xuong dongx2
+    printf xuong_dong
+    printf xuong_dong
+    
+    printf return
+    
+    mov ah, 1   ;Enter to return
+    int 21h
+    
+    jmp Start
+    
+    mov ah, 4ch
+    int 21h
+    
+IDEAL_WEIGHT endp
+
+;Chuong trinh in Menu
+MENU proc
+    ;Dua con tro ve vi tri (x, y) va in option
+    ;option 1
+    goto 2,2          
+    printf option1
+    
+    ;option 2
+    goto 2,4
+    printf option2
+    
+    ;option 3
+    goto 2,6    
+    printf option3
+    
+    ;option 4
+    goto 2,8   
+    printf option4
+      
+    ;Nhap select option 
+Make_choice:
+    goto 2,10
+    
+    mov ah, 9
+    lea dx, choice
+    int 21h
+    
+    mov ah, 1        ;nhao ki tu muon chon
+    int 21h
+    cmp al, '4'      ;Neu option > 4 thi nhap lai
+    jg Make_choice
+    
+    cmp al, '1'      ;Neu option < 1 thi nhap lai
+    jl Make_choice
+                  
+ret
+MENU endp    
+
+;chuong trinh in vien
+DRAW_BORDER proc
+    ;In chuoi loading 
+    goto 35,12     
+    printf loading
+    
+    ;Dat vi tri con tro bat dau la (0, 0)
+    goto 0,0                             
+    printf line1
+    printf xuong_dong
+    mov cx,22
+    in_canh:
+    printf line2
+    printf xuong_dong
+    loop in_canh
+    printf line1
+    
+    ;Xoa chuoi loading
+    goto 35,12     
+    printf blankstr
+    
+    ret
+    
+DRAW_BORDER endp
+;In Intro
+Intro proc
+    
+    call DRAW_BORDER 
+    
+    ;Di chuyen vi tri con tro va in
+    goto 24, 2
+    printf tittle     
+    
+    goto 33,4
+    printf someword     
+
+    goto 31,12    
+    printf proceed     
+    
+    mov ah, 1 ;ENTER TO START
+    int 21h
+ret
+Intro endp
 ; === Ham danh gia BMI dua tren ket qua tinh duoc ===
 phan_loai proc
+    printf estimate
     ; Tinh BMI * 10 de so sanh so nguyen
     mov ax, ans_nguyen
     mul 1e1
     add ax, ans_champhay
 
-    ; So sanh theo nguong BMI
+    ; So sanh theo nguong BMI va in ra advice
     cmp ax, muc1
     jl Muc_1
     cmp ax, muc2
@@ -194,44 +487,58 @@ phan_loai proc
     jmp Muc_8
 
 Muc_1:
-    lea dx, tb1
-    mov ah, 9
-    int 21h
+    printf tb1
+    
+    goto 2,12
+    printf advice1
     ret
 Muc_2:
-    lea dx, tb2
-    mov ah, 9
-    int 21h
+    printf tb2
+    
+    goto 2,12
+    printf advice1    
     ret
 Muc_3:
-    lea dx, tb3
-    mov ah, 9
-    int 21h
+    printf tb3
+    
+    goto 2,12
+    printf advice1    
     ret
 Muc_4:
-    lea dx, tb4
-    mov ah, 9
-    int 21h
+    printf tb4
+    
+    goto 2,12
+    printf advice2    
     ret
 Muc_5:
-    lea dx, tb5
-    mov ah, 9
-    int 21h
+    printf tb5
+    
+    goto 2,12
+    printf advice3
     ret
 Muc_6:
-    lea dx, tb6
-    mov ah, 9
-    int 21h
+    printf tb6
+    
+    goto 2,12
+    printf advice4x1
+    goto 2,13
+    printf advice4x2    
     ret
 Muc_7:
-    lea dx, tb7
-    mov ah, 9
-    int 21h
+    printf tb7
+    
+    goto 2,12
+    printf advice4x1
+    goto 2,13
+    printf advice4x2    
     ret
 Muc_8:
-    lea dx, tb8
-    mov ah, 9
-    int 21h
+    printf tb8
+    
+    goto 2,12
+    printf advice4x1
+    goto 2,13
+    printf advice4x2
     ret
 phan_loai endp
 
@@ -247,7 +554,10 @@ read_loop:
 
     cmp al, '9'
     jg read_again      ; Neu khong phai chu so thi bao loi
-
+    
+    cmp al, '0'
+    jl read_again      ; Neu khong phai chu so thi bao loi
+    
     sub al, '0'        ; Chuyen ky tu ve dang so
     mov chuso, al
     mov ax, bx
@@ -262,13 +572,9 @@ read_done:
     mov weight, ax
     ret
 
-read_again:
-    lea dx, xuong_dong
-    mov ah, 9
-    int 21h
-    lea dx, error
-    mov ah, 9
-    int 21h
+read_again:    
+    printf error
+    
     mov ax, 0
     ret
 read_num endp
@@ -292,4 +598,5 @@ Hienthi:
     ret
 print_num endp
 
+DEFINE_CLEAR_SCREEN
 end main
