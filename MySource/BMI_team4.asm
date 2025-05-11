@@ -30,7 +30,6 @@ include 'emu8086.inc'
    ans_champhay dw 0                                    ; Phan thap phan cua BMI 
    
    loading dw 'LOADING....$'
-   blankstr dw '             $' ;Chuoi trang dung de xoa chuoi
    
    thank db 'THANK YOU SO MUCH$'
    ;MENU
@@ -40,7 +39,7 @@ include 'emu8086.inc'
    option3 dw '3. Suggest ideal weight$'
    option4 dw '4. EXIT $'
    
-   choice db 'Select an option:...$'
+   choice db 'Select an option: $'
    
    ;CACULATE
    
@@ -69,7 +68,7 @@ include 'emu8086.inc'
    tb3.1 dw '17.0 - 18.4$'
    tb3 dw 'Mildly underweight$'
    
-   advice1 dw 'You should Eat more nutrient-dense meals and include strength training to build muscle.$' ;Advice for BMI < 18.5
+   advice1 dw 'Eat more nutrient-rich meals and add strength training to build muscle.$' ;Advice for BMI < 18.5
    
    muc4 dw 250
    tb4.1 dw '18.5 - 24.9$'
@@ -92,7 +91,7 @@ include 'emu8086.inc'
    tb7 dw 'Obesity Class II (Severe)$'
    
    tb8.1 dw  '40.0 and above$'
-   tb8 dw 'Obesity Class III (Very severe / morbid)$'
+   tb8 dw 'Obesity Class III (Very severe)$'
    
    advice4x1 dw 'You need to consult a healthcare provider for a personalized plan$' ;Advice for BMI >= 30
    advice4x2 dw 'And prioritize gradual lifestyle changes.$'
@@ -119,15 +118,6 @@ printf macro str
     int 21h
     
 endm
-; Lay vi tri con tro, gan x = dl, y = dh
-Take_pointer macro
-    mov ah, 3
-    mov bh, 0
-    int 10h
-    
-    
-    
-endm
 
 main proc
     mov ax, @data
@@ -144,18 +134,23 @@ Start:
     cmp al, '1'  ;Chay chuong trinh tinhh bmi
     jne skip1
     call CACULATE
+    jmp start
     
     skip1:
     cmp al, '2'  ;Chay chuong trinh in BMI TABLE
     jne skip2 
     call BMI_TABLE
+    jmp start
     
     skip2:
     cmp al, '3'  ;Chay chuong trinh tinh can nang ly tuong
     jne skip3
     call IDEAL_WEIGHT
+    jmp start
     
     skip3:
+    cmp al,'4'
+    jne start
     
     call CLEAR_SCREEN   ;Xoa man hinh
     
@@ -231,9 +226,7 @@ Input_Height: ;Nhap chieu cao
     call print_num
 
     ; In dau cham
-    lea dx, cham_phay
-    mov ah, 9
-    int 21h
+    printf cham_phay
 
     ; Tinh va in phan thap phan: (du * 10) / height^2
     mov ax, ans_du
@@ -253,17 +246,8 @@ Input_Height: ;Nhap chieu cao
     ; Nhan phim lua chon
     mov ah, 1
     int 21h
-
-   
-        
-    Take_pointer
     
-    
-    jmp Start           ; Quay lai menu
-
-   
-    ret
-    
+ret
 CACULATE endp
 
 ;Chuong trinh hien bang bmi
@@ -337,11 +321,7 @@ BMI_TABLE proc
     mov ah, 1  ;Enter to return
     int 21h
     
-    jmp Start
-    
-    mov ah, 4Ch
-    int 21h
-    
+ret 
 BMI_TABLE endp
 
 ;Chuong trinh tinh can nang ly tuong
@@ -349,18 +329,16 @@ IDEAL_WEIGHT proc
     call CLEAR_SCREEN  ;Xoa man hinh
     call DRAW_BORDER   ;In vien
     
-    mov x, 1       ;Dua con tro ve vi tri (1,1)
-    mov y, 1
-    goto x, y
+    
+    goto 1, 1  ;Dua con tro ve vi tri (1,1)
     ; Hien thi thong bao nhap chieu cao
     printf yeu_cau_nhap_chieu_cao
 
     call read_num
     mov height, ax      ; Luu vao bien height
 
-    ; Xuong dongx2
-    printf xuong_dong
-    printf xuong_dong
+    goto 1, 3  ;Dua con tro ve vi tri (1,3)
+    
     printf tb_Ideal_weight
            
     mov ax, height
@@ -371,20 +349,14 @@ IDEAL_WEIGHT proc
   
     call print_num
     
-    ; Xuong dongx2
-    printf xuong_dong
-    printf xuong_dong
+    goto 1, 5  ;Dua con tro ve vi tri (1,5)
     
     printf return
     
     mov ah, 1   ;Enter to return
     int 21h
     
-    jmp Start
-    
-    mov ah, 4ch
-    int 21h
-    
+ret 
 IDEAL_WEIGHT endp
 
 ;Chuong trinh in Menu
@@ -442,12 +414,7 @@ DRAW_BORDER proc
     loop in_canh
     printf line1
     
-    ;Xoa chuoi loading
-    goto 35,12     
-    printf blankstr
-    
-    ret
-    
+ret 
 DRAW_BORDER endp
 ;In Intro
 Intro proc
@@ -583,7 +550,7 @@ read_again:
     printf error
     
     mov ax, 0
-    ret
+ret
 read_num endp
 
 ; === Ham in so nguyen ra man hinh ===
@@ -602,7 +569,7 @@ Hienthi:
     mov ah, 2
     int 21h
     loop Hienthi
-    ret
+ret
 print_num endp
 
 DEFINE_CLEAR_SCREEN
