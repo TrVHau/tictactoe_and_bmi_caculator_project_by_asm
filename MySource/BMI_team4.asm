@@ -8,9 +8,6 @@ include 'emu8086.inc'
     line1 db '|', 77 dup('-'), '|', '$'
     line2 db '|', 77 dup(' '), '|', '$'
    
-   
-   x db ?;Toa do x cua vi tri con tro
-   y db ?;Toa do y cua vi tri con tro
    1e1 dw 10           ; Hang so 10
    1e4 dw 10000        ; Hang so 10000
    chuso db ?          ; Bien tam luu tung chu so vua nhap
@@ -43,12 +40,13 @@ include 'emu8086.inc'
    
    ;CACULATE
    
-   yeu_cau_nhap_can_nang dw 'Please enter your weight(kg): $' ; Cau nhap can nang
-   yeu_cau_nhap_chieu_cao dw 'Please enter your height(cm): $' ; Cau nhap chieu cao
+   yeu_cau_nhap_can_nang dw 'Please enter your weight(kg):      $' ; Cau nhap can nang
+   yeu_cau_nhap_chieu_cao dw 'Please enter your height(cm):     $' ; Cau nhap chieu cao
    ketqua dw 'This is your BMI : $'           ; Chuoi hien thi ket qua BMI
    
    Error dw 'It seem that you made some mistakes ?$' ; Thong bao loi khi nhap sai
-   estimate dw 'Your state is $'                     
+   estimate dw 'Your state is $'
+   blankstring db '                                            $'                     
    
    ; BMI (Body Mass Index) classification table
    ;Cac muc BMI
@@ -103,12 +101,18 @@ include 'emu8086.inc'
 .code                   ; Bat dau doan ma chuong trinh
 
 ;Dat vi tri con tro o vi tri x, y
-goto macro x, y
+goto macro x, y 
+    push ax
+    push bx
+    push dx
     mov ah, 2
     mov bh , 0
     mov dl, x
     mov dh, y        
     int 10h
+    pop dx
+    pop bx
+    pop ax
         
 endm
 ;In 1 chuoi
@@ -154,9 +158,7 @@ Start:
     
     call CLEAR_SCREEN   ;Xoa man hinh
     
-    mov x, 30
-    mov y, 12
-    goto x, y
+    goto 30,12
     printf thank
 
     ; Ket thuc chuong trinh
@@ -175,6 +177,7 @@ Input_Weight: ;Nhap can nang
     ; Hien thi thong bao nhap can nang  
     goto 2,2
     printf yeu_cau_nhap_can_nang
+    goto 32,2
     
     ; Goi ham nhap so nguyen
     call read_num
@@ -195,6 +198,7 @@ Input_Height: ;Nhap chieu cao
     ; Hien thi thong bao nhap chieu cao 
     goto 2,4
     printf yeu_cau_nhap_chieu_cao
+    goto 32,4
 
     call read_num
     mov height, ax      ; Luu vao bien height
@@ -542,14 +546,17 @@ read_loop:
     jmp read_loop
 
 read_done:
+    goto 2,10
+    printf blankstring
     mov ax, bx
     mov weight, ax
     ret
 
-read_again:    
-    printf error
-    
+read_again: 
+    goto 2,10
+    printf Error  
     mov ax, 0
+    
 ret
 read_num endp
 
