@@ -333,15 +333,18 @@ IDEAL_WEIGHT proc
     call CLEAR_SCREEN  ;Xoa man hinh
     call DRAW_BORDER   ;In vien
     
-    
-    goto 1, 1  ;Dua con tro ve vi tri (1,1)
+    startideal:
+    goto 2, 2  ;Dua con tro ve vi tri (2,2)
     ; Hien thi thong bao nhap chieu cao
     printf yeu_cau_nhap_chieu_cao
+    goto 32,2
 
-    call read_num
+    call read_num                   
+    cmp ax,0
+    je startideal
     mov height, ax      ; Luu vao bien height
 
-    goto 1, 3  ;Dua con tro ve vi tri (1,3)
+    goto 2, 4  ;Dua con tro ve vi tri (2,4)
     
     printf tb_Ideal_weight
            
@@ -353,8 +356,7 @@ IDEAL_WEIGHT proc
   
     call print_num
     
-    goto 1, 5  ;Dua con tro ve vi tri (1,5)
-    
+    goto 2, 6  ;Dua con tro ve vi tri (2,6)
     printf return
     
     mov ah, 1   ;Enter to return
