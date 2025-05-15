@@ -82,7 +82,7 @@ main proc
     cmp drawStatus,1          ;kiem tra trang thai hoa
     je callDraw               ;nhay den cho goi ham in ra hoa
     
-    jmp Game
+    jmp game
     
     callVictory:              ;
     call VICTORY              ;goi ham in ra chien thang
