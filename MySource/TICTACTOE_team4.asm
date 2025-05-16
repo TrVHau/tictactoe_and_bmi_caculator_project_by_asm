@@ -57,7 +57,7 @@ include 'emu8086.inc'
     
     ;nhap o muon chon
     inp db 'nhap o muon chon. $'
-    wasTaken db 'O da duoc chon. Moi ban chon lai. $'
+    wasTaken db 'O da duoc chon. Moi ban chon lai.   $'
     
     ;nhap khi choi lai
     try db 'ban co muon choi lai khong?(y/n): $'
