@@ -56,8 +56,8 @@ include 'emu8086.inc'
     drw db 'Tran dau hoa!                  $'  
     
     ;nhap o muon chon
-    inp db 'nhap o muon chon.                         $'
-    wasTaken db 'O da duoc chon. Moi ban chon lai.        $'
+    inp db 'nhap o muon chon. $'
+    wasTaken db 'O da duoc chon. Moi ban chon lai. $'
     
     ;nhap khi choi lai
     try db 'ban co muon choi lai khong?(y/n): $'
@@ -432,7 +432,7 @@ TRYAGAIN proc
     lea dx,try
     int 21h
     
-    mov ah,1
+    mov ah,7
     int 21h
     
     cmp al,'y'          ;so sanh y la yes
@@ -485,7 +485,7 @@ INPUT proc
     lea dx,inp          ;in ra nguoi choi chon o muon chon
     int 21h
     
-    mov ah,1            ;nhap 1 ki tu
+    mov ah,7            ;nhap 1 ki tu
     int 21h
     
     inc moves           ;tang so lan choi len 1
