@@ -432,7 +432,7 @@ TRYAGAIN proc
     lea dx,try
     int 21h
     
-    mov ah,7
+    mov ah,1
     int 21h
     
     cmp al,'y'          ;so sanh y la yes
@@ -485,7 +485,7 @@ INPUT proc
     lea dx,inp          ;in ra nguoi choi chon o muon chon
     int 21h
     
-    mov ah,7            ;nhap 1 ki tu
+    mov ah,1            ;nhap 1 ki tu
     int 21h
     
     inc moves           ;tang so lan choi len 1
