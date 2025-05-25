@@ -12,7 +12,7 @@ Repository này bao gồm **hai project lập trình bằng hợp ngữ x86 (Ass
 ## 📌 Công nghệ sử dụng
 
 - **Ngôn ngữ:** Assembly x86
-- **Trình mô phỏng:** [emu8086](http://www.emu8086.com/)
+- **Trình mô phỏng:** [emu8086](http://www.emu8086.com/).
 - **Thư viện hỗ trợ:** `emu8086.inc` (macro như `GOTOXY`, `CLEAR_SCREEN`, `printf`, ...)
 
 ---
